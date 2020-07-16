@@ -1,7 +1,11 @@
 import os
 import shutil
+from typing import Optional
 from PIL import Image
 
+# Scaling dimensions
+HEIGHT = 300
+WIDTH = 400
 
 def _create_tmp() -> None:
     """
@@ -45,3 +49,33 @@ def convert_to_png(fp: str) -> str:
     os.remove(fp)
 
     return new_fp
+
+
+def make_grayscale(fp: str, dest: Optional[str] = None) -> str:
+    """
+    Converts an image to single-channel grayscale. In-place if no destination
+    path is specified.
+    :param fp: The image to convert.
+    :param dest: A destination path, if a non-destructive operation is desired.
+    :return: The path to the new image.
+    """
+    img = Image.open(fp)
+    img = img.convert("L")
+    new_path = dest or fp
+    img.save(new_path)
+    return new_path
+
+
+def scale_image(fp: str, dest: Optional[str] = None) -> str:
+    """
+    Scales an image to HEIGHT x WIDTH, the standard size used by the pipeline
+    for modelling.
+    :param fp: The image to convert.
+    :param dest: A destination path, if a non-destructive operation is desired.
+    :return: The path to the new image.
+    """
+    img = Image.open(fp)
+    img = img.resize((WIDTH, HEIGHT))
+    new_path = dest or fp
+    img.save(new_path)
+    return new_path
