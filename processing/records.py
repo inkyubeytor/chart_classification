@@ -1,8 +1,13 @@
+"""
+Functions for creating and updating reccords.
+"""
 import os
+import itertools
 
 import pandas as pd
 
 from .image import CONVERSIONS
+from .transforms import TRANSFORMS
 
 
 def init_data_store() -> None:
@@ -33,4 +38,19 @@ def init_label_store() -> None:
     :return: None
     """
     df = pd.DataFrame(columns=["File", "Class", *CONVERSIONS])
-    df.to_csv("data/images.csv")
+    df.to_csv("data/log.csv")
+
+
+def new_dataset() -> str:
+    """
+    Initialize a new dataset.
+    :return: The path to the dataset folder.
+    """
+    datasets = os.listdir("data/datasets")
+    i = next(i for i in itertools.count() if f"dataset-{i}" not in datasets)
+    path = f"data/datasets/dataset-{i}"
+    os.mkdir(path)
+    os.mkdir(f"{path}/images")
+    df = pd.DataFrame(columns=["File", "Class", *CONVERSIONS, *TRANSFORMS])
+    df.to_csv(f"{path}/log.csv")
+    return path

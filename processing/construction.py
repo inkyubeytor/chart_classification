@@ -1,3 +1,6 @@
+"""
+Functions for constructing datasets.
+"""
 import numpy as np
 from PIL import Image
 
@@ -12,3 +15,5 @@ def load_image_array(fp: str) -> np.ndarray:
     arr = np.array(img)
     img.close()
     return arr
+
+

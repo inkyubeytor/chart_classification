@@ -1,9 +1,13 @@
+"""
+Functions for retrieving images.
+"""
+import imghdr
 import os
 import shutil
-import requests
-from typing import Optional
 import time
-import imghdr
+from typing import Optional
+
+import requests
 
 IMAGE_FORMATS = ["jpg", "jpeg", "png", "gif", "tiff", "tif", "bmp"]
 
