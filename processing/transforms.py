@@ -3,13 +3,10 @@ A set of tools to process image arrays. All transforms have the type
 `(arr: np.ndarray) -> np.ndarray`.
 
 To add a transform, add a function and then add a flag name to the TRANSFORMS
-global list.
+global dictionary.
 """
 
 import numpy as np
-
-# List of available transforms
-TRANSFORMS = ["Scale Pixels", "Flatten"]
 
 
 def scale_pixels(arr: np.ndarray) -> np.ndarray:
@@ -33,3 +30,10 @@ def flatten(arr: np.ndarray) -> np.ndarray:
     :return: A copy of the array collapsed into one dimension.
     """
     return arr.flatten()
+
+
+# List of available transforms
+TRANSFORMS = {
+    "Scale Pixels": scale_pixels,
+    "Flatten": flatten
+}

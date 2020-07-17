@@ -10,9 +10,6 @@ from typing import Optional
 
 from PIL import Image
 
-# List of available conversions
-CONVERSIONS = ["PNG, Grayscale, Size Scaled"]
-
 # Scaling dimensions
 HEIGHT = 300
 WIDTH = 400
@@ -66,3 +63,11 @@ def scale_image(fp: str, dest: Optional[str] = None) -> str:
     new_path = dest or fp
     img.save(new_path)
     return new_path
+
+
+# List of available conversions
+CONVERSIONS = {
+    "PNG": convert_to_png,
+    "Grayscale": make_grayscale,
+    "Size Scaled": scale_image
+}

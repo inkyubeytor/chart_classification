@@ -6,7 +6,7 @@ import itertools
 
 import pandas as pd
 
-from .image import CONVERSIONS
+from .conversions import CONVERSIONS
 from .transforms import TRANSFORMS
 
 
@@ -34,7 +34,7 @@ def init_label_store() -> None:
         --- Flags -------------------------------------------------------------
         Whether the file has been converted or verified to be a certain form.
         Columns in this section have type bool and are generated from the list
-        of conversions imported from `image.py`.
+        of conversions imported from `conversions.py`.
     :return: None
     """
     df = pd.DataFrame(columns=["File", "Class", *CONVERSIONS])
@@ -44,13 +44,14 @@ def init_label_store() -> None:
 def new_dataset() -> str:
     """
     Initialize a new dataset.
-    :return: The path to the dataset folder.
+    :return: The name of the dataset folder.
     """
     datasets = os.listdir("data/datasets")
     i = next(i for i in itertools.count() if f"dataset-{i}" not in datasets)
     path = f"data/datasets/dataset-{i}"
     os.mkdir(path)
     os.mkdir(f"{path}/images")
-    df = pd.DataFrame(columns=["File", "Class", *CONVERSIONS, *TRANSFORMS])
+    df = pd.DataFrame(
+        columns=["File", "Class", *(CONVERSIONS.keys()), *(TRANSFORMS.keys())])
     df.to_csv(f"{path}/log.csv")
-    return path
+    return f"dataset-{i}"
