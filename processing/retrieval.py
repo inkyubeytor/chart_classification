@@ -3,6 +3,7 @@ import shutil
 import requests
 from typing import Optional
 import time
+import imghdr
 
 IMAGE_FORMATS = ["jpg", "jpeg", "png", "gif", "tiff", "tif", "bmp"]
 
@@ -26,7 +27,8 @@ def _check_filetype(fp: str, extension: str) -> bool:
     :param fp: The file to check.
     :return: True if the file is an image
     """
-    raise NotImplementedError
+    extension = "jpeg" if extension == "jpg" else extension
+    return imghdr.what(fp) == extension
 
 
 def copy_to_store(fp: str) -> Optional[str]:
