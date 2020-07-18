@@ -2,6 +2,7 @@
 Functions for initializing and deleting components of the storage system.
 """
 import os
+import json
 import itertools
 import shutil
 
@@ -52,9 +53,10 @@ def new_dataset() -> str:
     path = f"data/datasets/dataset-{i}"
     os.mkdir(path)
     os.mkdir(f"{path}/images")
-    df = pd.DataFrame(
-        columns=["File", "Class", *(CONVERSIONS.keys()), *(TRANSFORMS.keys())])
+    df = pd.DataFrame(columns=["File", "Class"])
     df.to_csv(f"{path}/log.csv")
+    with open(f"{path}/process.json", "w+") as f:
+        json.dump({"Conversions": [], "Transforms": []}, f)
     return path
 
 

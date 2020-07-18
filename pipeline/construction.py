@@ -2,6 +2,7 @@
 Functions for constructing datasets.
 """
 from typing import Callable, List
+import os
 
 import numpy as np
 from PIL import Image
@@ -21,17 +22,17 @@ def load_image_array(fp: str) -> np.ndarray:
     return arr
 
 
-def make_imageset(fps: List[str], transforms: List[Callable],
-                  dataset: str) -> bool:
+def make_imageset(dataset: str, transforms: List[Callable]) -> bool:
     """
     Loads the images from a set of URLS, applies a series of transforms, and
     saves the result to the dataset.
-    :param fps: A list of image file paths.
     :param transforms: A list of transform functions to apply when loading.
     :param dataset: The path to the dataset.
     :return: Whether the operation was successful.
     """
     try:
+        # TODO: load image paths from log.csv instead of os.listdir
+        fps = os.listdir(f"{dataset}/images")
         images = process_map(load_image_array, fps)
     except FileNotFoundError:
         return False
