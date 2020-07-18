@@ -5,6 +5,7 @@ import imghdr
 import os
 import shutil
 import time
+import random
 from typing import Optional
 
 import requests
@@ -35,6 +36,14 @@ def _check_filetype(fp: str, extension: str) -> bool:
     return imghdr.what(fp) == extension
 
 
+def _generate_file_name() -> str:
+    """
+    Generates a "unique" filename/ID for an image.
+    :return: The image name.
+    """
+    return f"{time.time_ns()}{random.randint(100000, 999999)}"
+
+
 def copy_to_store(fp: str) -> Optional[str]:
     """
     Copies an image to data folder.
@@ -44,7 +53,7 @@ def copy_to_store(fp: str) -> Optional[str]:
     name = os.path.basename(fp)
     extension = _get_filetype_from_name(name)
     if extension and _check_filetype(fp, extension):
-        new_path = f"data/images/{time.time()}.{extension}"
+        new_path = f"data/images/{_generate_file_name()}.{extension}"
         shutil.copyfile(fp, new_path)
         return new_path
     else:
@@ -61,7 +70,7 @@ def download_to_store(url: str) -> Optional[str]:
     extension = _get_filetype_from_name(name)
     if extension:
         response = requests.get(url)
-        new_path = f"data/images/{time.time()}.{extension}"
+        new_path = f"data/images/{_generate_file_name()}.{extension}"
         with open(new_path, "wb") as f:
             f.write(response.content)
         if _check_filetype(new_path, extension):

@@ -5,6 +5,7 @@ from typing import Callable, List
 import os
 
 import numpy as np
+import pandas as pd
 from PIL import Image
 
 from .lib import process_map
@@ -31,8 +32,8 @@ def make_imageset(dataset: str, transforms: List[Callable]) -> bool:
     :return: Whether the operation was successful.
     """
     try:
-        # TODO: load image paths from log.csv instead of os.listdir
-        fps = os.listdir(f"{dataset}/images")
+        df = pd.read_csv(f"{dataset}/log.csv")
+        fps = list(f"{dataset}/images/{f}" for f in df["File"])
         images = process_map(load_image_array, fps)
     except FileNotFoundError:
         return False
