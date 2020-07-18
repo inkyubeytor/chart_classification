@@ -28,7 +28,7 @@ def make_imageset(fps: List[str], transforms: List[Callable],
     saves the result to the dataset.
     :param fps: A list of image file paths.
     :param transforms: A list of transform functions to apply when loading.
-    :param dataset: The name of the dataset.
+    :param dataset: The path to the dataset.
     :return: Whether the operation was successful.
     """
     try:
@@ -37,5 +37,5 @@ def make_imageset(fps: List[str], transforms: List[Callable],
         return False
     for f in transforms:
         images = process_map(f, images)
-    np.save(f"data/datasets/{dataset}/X.npy", np.array(images))
+    np.save(f"{dataset}/X.npy", np.array(images))
     return True

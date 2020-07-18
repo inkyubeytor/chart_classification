@@ -45,7 +45,7 @@ def init_label_store() -> None:
 def new_dataset() -> str:
     """
     Initialize a new dataset.
-    :return: The name of the dataset folder.
+    :return: The path to the dataset folder.
     """
     datasets = os.listdir("data/datasets")
     i = next(i for i in itertools.count() if f"dataset-{i}" not in datasets)
@@ -55,13 +55,13 @@ def new_dataset() -> str:
     df = pd.DataFrame(
         columns=["File", "Class", *(CONVERSIONS.keys()), *(TRANSFORMS.keys())])
     df.to_csv(f"{path}/log.csv")
-    return f"dataset-{i}"
+    return path
 
 
 def delete_dataset(dataset: str) -> None:
     """
     Delete a dataset.
-    :param dataset: The name of the dataset to delete.
+    :param dataset: The path to the dataset to delete.
     :return: None
     """
-    shutil.rmtree(f"data/datasets/{dataset}")
+    shutil.rmtree(dataset)
