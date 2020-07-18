@@ -1,5 +1,6 @@
 # chart_classification
 
+A chart classification pipeline.
 
 TODO:
 * Train/Classify

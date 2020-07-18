@@ -1,8 +1,9 @@
 """
-Functions for creating and updating reccords.
+Functions for initializing and deleting components of the storage system.
 """
 import os
 import itertools
+import shutil
 
 import pandas as pd
 
@@ -55,3 +56,12 @@ def new_dataset() -> str:
         columns=["File", "Class", *(CONVERSIONS.keys()), *(TRANSFORMS.keys())])
     df.to_csv(f"{path}/log.csv")
     return f"dataset-{i}"
+
+
+def delete_dataset(dataset: str) -> None:
+    """
+    Delete a dataset.
+    :param dataset: The name of the dataset to delete.
+    :return: None
+    """
+    shutil.rmtree(f"data/datasets/{dataset}")
