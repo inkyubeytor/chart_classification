@@ -10,6 +10,7 @@ from PIL import Image
 
 from .lib import process_map
 from .transforms import TRANSFORMS
+from .storage import CLASSES
 
 
 def _load_image_array(fp: str) -> np.ndarray:
@@ -24,7 +25,7 @@ def _load_image_array(fp: str) -> np.ndarray:
     return arr
 
 
-def make_imageset(dataset: str, transforms: List[str]) -> bool:
+def _make_imageset(dataset: str, transforms: List[str]) -> bool:
     """
     Loads the images from dataset image store, applies a series of transforms,
     and saves the result to the dataset.
@@ -46,3 +47,31 @@ def make_imageset(dataset: str, transforms: List[str]) -> bool:
         json.dump(data, f)
     np.save(f"{dataset}/X.npy", np.array(images))
     return True
+
+
+def _make_labelset(dataset: str, bundled: bool = True) -> bool:
+    """
+    Turns the labels of a dataset into training data labels, applying bundling
+    of chart classes if desired.
+    :param dataset: The dataset to create label data for.
+    :param bundled: Whether the chart classes should be bundled.
+    :return: Whether the operation was successful.
+    """
+    df = pd.read_csv(f"{dataset}/log.csv")
+    classes = [int(bool(CLASSES[c])) if bundled else CLASSES[c] for c in
+               df["Classes"]]
+    np.save(f"{dataset}/Y.npy", np.array(classes))
+    return True
+
+
+def make_data(dataset: str, transforms: List[str],
+              bundled: bool = True) -> bool:
+    """
+    Construct X.npy and Y.npy dataset files.
+    :param dataset: The dataset to convert.
+    :param transforms: The list of transforms to apply to the images.
+    :param bundled: Whether the label classes should be bundled.
+    :return:
+    """
+    return _make_imageset(dataset, transforms) and \
+        _make_labelset(dataset, bundled)

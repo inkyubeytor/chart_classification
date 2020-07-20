@@ -10,8 +10,6 @@ TODO:
   * Assert those images have no other conversions applied
   * Copy the images, then destructively convert them
   * Record the set of conversions in process.json
-* Given a dataset, convert the images into model data npy files
-  * Record the set of transforms in process.json
 
 * Train/Classify
   * Load training data
@@ -24,7 +22,7 @@ TODO:
 # Structure
 ```
 # pipeline/construction.py
-make_imageset(dataset: str, transforms: List[str]) -> bool
+make_data(dataset: str, transforms: List[str], bundled: bool = True) -> bool
 
 # pipeline/conversions.py
 CONVERSIONS: Dict[str, Callable[[str, Optional[str]], str]]
