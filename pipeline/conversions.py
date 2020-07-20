@@ -6,7 +6,7 @@ To add a conversion, add a function and then add a flag name to the CONVERSIONS
 global list.
 """
 import os
-from typing import Optional
+from typing import Callable, Dict, Optional
 
 from PIL import Image
 
@@ -66,7 +66,7 @@ def scale_image(fp: str, dest: Optional[str] = None) -> str:
 
 
 # List of available conversions
-CONVERSIONS = {
+CONVERSIONS: Dict[str, Callable[[str, Optional[str]], str]] = {
     "PNG": convert_to_png,
     "Grayscale": make_grayscale,
     "Size Scaled": scale_image

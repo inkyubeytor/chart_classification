@@ -12,7 +12,7 @@ from .lib import process_map
 from .transforms import TRANSFORMS
 
 
-def load_image_array(fp: str) -> np.ndarray:
+def _load_image_array(fp: str) -> np.ndarray:
     """
     Converts an image on disk to a numpy array.
     :param fp: The image to convert.
@@ -26,8 +26,8 @@ def load_image_array(fp: str) -> np.ndarray:
 
 def make_imageset(dataset: str, transforms: List[str]) -> bool:
     """
-    Loads the images from a set of URLS, applies a series of transforms, and
-    saves the result to the dataset.
+    Loads the images from dataset image store, applies a series of transforms,
+    and saves the result to the dataset.
     :param transforms: A list of transform functions to apply when loading.
     :param dataset: The path to the dataset.
     :return: Whether the operation was successful.
@@ -35,7 +35,7 @@ def make_imageset(dataset: str, transforms: List[str]) -> bool:
     try:
         df = pd.read_csv(f"{dataset}/log.csv")
         fps = list(f"{dataset}/images/{f}" for f in df["File"])
-        images = process_map(load_image_array, fps)
+        images = process_map(_load_image_array, fps)
     except FileNotFoundError:
         return False
     for f in transforms:

@@ -6,6 +6,8 @@ To add a transform, add a function and then add a flag name to the TRANSFORMS
 global dictionary.
 """
 
+from typing import Callable, Dict
+
 import numpy as np
 
 
@@ -33,7 +35,7 @@ def flatten(arr: np.ndarray) -> np.ndarray:
 
 
 # List of available transforms
-TRANSFORMS = {
+TRANSFORMS: Dict[str, Callable[[np.ndarray], np.ndarray]] = {
     "Scale Pixels": scale_pixels,
     "Flatten": flatten
 }

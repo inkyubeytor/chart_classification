@@ -3,8 +3,6 @@
 A chart classification pipeline.
 
 TODO:
-* Given list of URLs or paths, add images to data store
-  * If a list of classes is given, add with those classes
 * Given a list of image names from data store and list of conversions, apply
   conversions to images in data store (destructively)
 * Given list of image names from data store and list of conversions, make a new 
@@ -20,3 +18,27 @@ TODO:
   * Train and save model
   * Load model
   * Predict with model
+
+
+
+# Structure
+```
+# pipeline/construction.py
+make_imageset(dataset: str, transforms: List[str]) -> bool
+
+# pipeline/conversions.py
+CONVERSIONS: Dict[str, Callable[[str, Optional[str]], str]]
+
+# pipeline/retrieval.py
+import_images(images: List[str], labels: Optional[List[str]] = None, urls: bool = False) -> None:
+
+# pipeline/storage.py
+CLASSES: Dict[str, int]
+DEFAULT_CLASS: str
+init_data_store() -> None
+new_dataset() -> str
+delete_dataset(dataset: str) -> None
+
+# pipeline/transforms.py
+TRANSFORMS: Dict[str, Callable[[np.ndarray], np.ndarray]]
+```

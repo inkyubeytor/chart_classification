@@ -5,27 +5,37 @@ import os
 import json
 import itertools
 import shutil
+from typing import Dict
 
 import pandas as pd
 
 from .conversions import CONVERSIONS
-from .transforms import TRANSFORMS
+
+CLASSES: Dict[str, int] = {
+    "Unlabeled": -1,
+    "NotGraph": 0,
+    "VennDiagram": 1,
+    "TreeDiagram": 2,
+    "Table": 3,
+    "ScatterGraph": 4,
+    "RadarPlot": 5,
+    "PieChart": 6,
+    "ParetoChart": 7,
+    "NetworkDiagram": 8,
+    "Map": 9,
+    "LineGraph": 10,
+    "FlowChart": 11,
+    "ColumnGraph": 12,
+    "BubbleChart": 13,
+    "BoxPlot": 14,
+    "BarGraph": 15,
+    "AreaGraph": 16
+}
+
+DEFAULT_CLASS: str = "Unlabeled"
 
 
-def init_data_store() -> None:
-    """
-    If no data store exists, create one.
-    :return: None
-    """
-    try:
-        os.mkdir("data")
-        os.mkdir("data/images")
-        os.mkdir("data/datasets")
-    except FileExistsError:
-        pass
-
-
-def init_label_store() -> None:
+def _init_label_store() -> None:
     """
     Creates a CSV to store information about image data. The included columns,
     listed in logical categories, are:
@@ -39,8 +49,22 @@ def init_label_store() -> None:
         of conversions imported from `conversions.py`.
     :return: None
     """
-    df = pd.DataFrame(columns=["File", "Class", *CONVERSIONS])
-    df.to_csv("data/log.csv")
+    df = pd.DataFrame(columns=["File", "Class", *CONVERSIONS.keys()])
+    df.to_csv("data/log.csv", index_label="Index")
+
+
+def init_data_store() -> None:
+    """
+    If no data store exists, create one.
+    :return: None
+    """
+    try:
+        os.mkdir("data")
+        os.mkdir("data/images")
+        os.mkdir("data/datasets")
+        _init_label_store()
+    except FileExistsError:
+        pass
 
 
 def new_dataset() -> str:
@@ -54,7 +78,7 @@ def new_dataset() -> str:
     os.mkdir(path)
     os.mkdir(f"{path}/images")
     df = pd.DataFrame(columns=["File", "Class"])
-    df.to_csv(f"{path}/log.csv")
+    df.to_csv(f"{path}/log.csv", index_label="Index")
     with open(f"{path}/process.json", "w+") as f:
         json.dump({"Conversions": [], "Transforms": []}, f)
     return path

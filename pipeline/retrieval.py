@@ -2,13 +2,19 @@
 Functions for retrieving images.
 """
 import imghdr
+import itertools
 import os
+import random
 import shutil
 import time
-import random
-from typing import Optional
+from typing import List, Optional
 
+import pandas as pd
 import requests
+
+from .conversions import CONVERSIONS
+from .lib import process_map
+from .storage import DEFAULT_CLASS
 
 IMAGE_FORMATS = ["jpg", "jpeg", "png", "gif", "tiff", "tif", "bmp"]
 
@@ -44,7 +50,7 @@ def _generate_file_name() -> str:
     return f"{time.time_ns()}{random.randint(100000, 999999)}"
 
 
-def copy_to_store(fp: str) -> Optional[str]:
+def _copy_to_store(fp: str) -> Optional[str]:
     """
     Copies an image to data folder.
     :param fp: The image to copy.
@@ -60,7 +66,7 @@ def copy_to_store(fp: str) -> Optional[str]:
         return None
 
 
-def download_to_store(url: str) -> Optional[str]:
+def _download_to_store(url: str) -> Optional[str]:
     """
     Downloads an image from a URL to data folder.
     :param url: The URL of the image to download.
@@ -78,3 +84,26 @@ def download_to_store(url: str) -> Optional[str]:
         else:
             os.remove(new_path)
             return None
+
+
+def import_images(images: List[str], labels: Optional[List[str]] = None,
+                  urls: bool = False) -> None:
+    """
+    Imports images into a dataset.
+    :param images: The list of image path/URLs to import.
+    :param labels: The image classes of the images.
+    :param urls: Whether or not the images are URLs (otherwise paths).
+    :return: None.
+    """
+    labels = labels if labels else [DEFAULT_CLASS for _ in images]
+    filenames = process_map(_download_to_store if urls else _copy_to_store,
+                            images)
+    df_old = pd.read_csv("data/log.csv", index_col="Index")
+    data = [[f, l, *[False for _ in CONVERSIONS.keys()]] for f, l in
+            zip(filenames, labels) if f is not None]
+    index = list(range(
+        max(df_old.index) + 1, max(df_old.index) + 1 + len(data)
+    ))
+    df_new = pd.DataFrame(data, columns=df_old.columns, index=index)
+    df = df_old.append(df_new)
+    df.to_csv("data/log.csv", index_label="Index")
