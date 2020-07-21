@@ -6,11 +6,6 @@ TODO:
 * Given a list of image names from data store and list of conversions, apply
   conversions to images in data store (destructively)
 
-* Train/Classify
-  * Train and save model
-  * Load model and predict with model
-
-
 
 # Structure
 ```
@@ -18,6 +13,7 @@ TODO:
 new_dataset(filenames: List[str], conversions: List[str]) -> str
 delete_dataset(dataset: str) -> None
 make_data(dataset: str, transforms: List[str], bundled: bool = True) -> bool
+get_process(dataset: str) -> Dict[str, Any]
 
 # pipeline/storage.py
 CLASSES: Dict[str, int]

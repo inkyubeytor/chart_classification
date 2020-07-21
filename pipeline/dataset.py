@@ -4,7 +4,7 @@ Functions for manipulating datasets.
 import itertools
 import os
 import shutil
-from typing import List
+from typing import List, Dict, Any
 import json
 
 import numpy as np
@@ -29,7 +29,8 @@ def new_dataset(filenames: List[str], conversions: List[str]) -> str:
     os.mkdir(dataset)
     os.mkdir(f"{dataset}/images")
     with open(f"{dataset}/process.json", "w+") as f:
-        json.dump({"Conversions": conversions, "Transforms": []}, f)
+        json.dump(
+            {"Conversions": conversions, "Transforms": [], "Bundled": None}, f)
 
     # Add images
     df_store = pd.read_csv("data/log.csv", index_col="Index")
@@ -114,6 +115,10 @@ def _make_labelset(dataset: str, bundled: bool = True) -> bool:
     classes = [int(bool(CLASSES[c])) if bundled else CLASSES[c] for c in
                df["Classes"]]
     np.save(f"{dataset}/Y.npy", np.array(classes))
+    with open(f"{dataset}/process.json", "r+") as f:
+        data = json.load(f)
+        data["Bundled"] = bundled
+        json.dump(data, f)
     return True
 
 
@@ -124,7 +129,19 @@ def make_data(dataset: str, transforms: List[str],
     :param dataset: The dataset to convert.
     :param transforms: The list of transforms to apply to the images.
     :param bundled: Whether the label classes should be bundled.
-    :return:
+    :return: Whether the operation was successful.
     """
     return _make_imageset(dataset, transforms) and \
         _make_labelset(dataset, bundled)
+
+
+def get_process(dataset: str) -> Dict[str, Any]:
+    """
+    Returns the process metadata object for a dataset.
+    :param dataset: The dataset to read the process of.
+    :return: An object containing a list of conversions and transforms and
+    whether the classes are bundled for the given dataset.
+    """
+    with open(f"{dataset}/process.json", "r") as f:
+        data = json.load(f)
+    return data
