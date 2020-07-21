@@ -4,12 +4,13 @@ A chart classification pipeline.
 
 To Test:
 import_images with URL
-train_and_save
-load_and_predict
 
-Potential refactors:
+TODO:
 Allow custom data store location
 use only filenames in log files instead of paths
+Fix parallelism with mapping
+Make test datasets use tmp files so datasets can be shared as model and test 
+datasets.
 
 # Structure
 ```
