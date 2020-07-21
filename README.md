@@ -26,4 +26,7 @@ TRANSFORMS: Dict[str, Callable[[np.ndarray], np.ndarray]]
 
 # pipeline/retrieval.py
 
+# modelling.py
+train_and_save(classifier: ClassifierMixin, dataset: str, transforms: List[str], bundled: bool) -> None
+load_and_predict(model_dataset: str, test_dataset: str) -> None
 ```
