@@ -81,9 +81,40 @@ def import_images(images: List[str], labels: Optional[List[str]] = None,
     df_old = pd.read_csv("data/log.csv", index_col="Index")
     data = [[f, l, *[False for _ in CONVERSIONS.keys()]] for f, l in
             zip(filenames, labels) if f is not None]
-    index = list(range(
-        max(df_old.index) + 1, max(df_old.index) + 1 + len(data)
-    ))
+    index_start = max(df_old.index) + 1
+    index = list(range(index_start, index_start + len(data)))
     df_new = pd.DataFrame(data, columns=df_old.columns, index=index)
     df = df_old.append(df_new)
+    df.to_csv("data/log.csv", index_label="Index")
+
+
+def _convert_image(image: str, conversions: List[str]) -> str:
+    """
+    Converts an image in the data store and returns the path to the new image.
+    :param image: The path to the image to convert.
+    :param conversions: The list of conversions to apply.
+    :return: The converted image.
+    """
+    for c in conversions:
+        image = CONVERSIONS[c](image)
+    return image
+
+
+def convert_images(images: List[str], conversions: List[str]) -> None:
+    """
+    Destructively apply a set of conversions to a set of images in the main
+    store.
+    :param images: The list of images to work with.
+    :param conversions: The list of conversions to apply.
+    :return: None.
+    """
+    df = pd.read_csv("data/log.csv", index_col="Index")
+
+    conversions_left = [
+        (r["File"], [c for c in conversions if not r[c]])
+        for _, r in df.iterrows() if r["File"] in images
+    ]
+    new_files = process_map(_convert_image, conversions_left, packed=True)
+    for new, (old, c) in zip(new_files, conversions_left):
+        df.loc[df["File"] == old, ["File", *c]] = [new, *[True] * len(c)]
     df.to_csv("data/log.csv", index_label="Index")
