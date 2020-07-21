@@ -13,8 +13,12 @@ def process_map(f: Callable, args: List, packed: bool = False) -> List:
     :param packed: Whether the args list consists of packed argument tuples.
     :return: The list of outputs from the mapping of f over args.
     """
-    with multiprocessing.Pool(POOL_SIZE) as p:
-        if packed:
-            return p.starmap(f, args)
-        else:
-            return p.map(f, args)
+    #with multiprocessing.Pool(POOL_SIZE) as p:
+    #    if packed:
+    #        return p.starmap(f, args)
+    #    else:
+    #        return p.map(f, args)
+    if packed:
+        return [f(*a) for a in args]
+    else:
+        return [f(a) for a in args]

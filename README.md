@@ -2,6 +2,14 @@
 
 A chart classification pipeline.
 
+To Test:
+import_images with URL
+train_and_save
+load_and_predict
+
+Potential refactors:
+Allow custom data store location
+use only filenames in log files instead of paths
 
 # Structure
 ```

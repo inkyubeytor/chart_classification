@@ -36,25 +36,30 @@ def new_dataset(filenames: List[str], conversions: List[str]) -> str:
     df_store = pd.read_csv("data/log.csv", index_col="Index")
     df = df_store[[f in filenames for f in df_store["File"]]]
     conversions_left = [
-        (r["File"], [c for c in conversions if not r[c]])
+        (r, [c for c in conversions if not r[c]])
         for _, r in df.iterrows()
     ]
 
-    def _copy_and_apply(file: str, conversions_to_apply: List[str]) -> None:
+    def _copy_and_apply(file: str, conversions_to_apply: List[str]) -> str:
         """
         Copies a file to a dataset and applies conversions.
         :param file: The file to copy and process.
         :param conversions_to_apply: The conversions to apply after copying.
         :return: None.
         """
-        img = f"{dataset}/images/{file}"
-        shutil.copyfile(f"data/images/{file}", img)
+        img = f"{dataset}/images/{os.path.basename(file)}"
+        shutil.copyfile(file, img)
         for c in conversions_to_apply:
             img = CONVERSIONS[c](img)
+        return img
 
-    process_map(_copy_and_apply, conversions_left, packed=True)
-    df = df["File", "Class"]
-    df.to_csv(f"{dataset}/log.csv", index_label="Index")
+    new_images = process_map(_copy_and_apply,
+                             [(r["File"], cs) for r, cs in conversions_left],
+                             packed=True)
+    new_data = [(new, r["Class"]) for new, (r, _)
+                in zip(new_images, conversions_left)]
+    new_df = pd.DataFrame(new_data, columns=["File", "Class"])
+    new_df.to_csv(f"{dataset}/log.csv", index_label="Index")
     return dataset
 
 
@@ -89,15 +94,16 @@ def _make_imageset(dataset: str, transforms: List[str]) -> bool:
     """
     try:
         df = pd.read_csv(f"{dataset}/log.csv")
-        fps = list(f"{dataset}/images/{f}" for f in df["File"])
+        fps = list(df["File"])
         images = process_map(_load_image_array, fps)
     except FileNotFoundError:
         return False
     for f in transforms:
         images = process_map(TRANSFORMS[f], images)
-    with open(f"{dataset}/process.json", "r+") as f:
+    with open(f"{dataset}/process.json", "r") as f:
         data = json.load(f)
         data["Transforms"] = transforms
+    with open(f"{dataset}/process.json", "w+") as f:
         json.dump(data, f)
     np.save(f"{dataset}/X.npy", np.array(images))
     return True
@@ -113,12 +119,13 @@ def _make_labelset(dataset: str, bundled: bool = True) -> bool:
     """
     df = pd.read_csv(f"{dataset}/log.csv")
     classes = [int(bool(CLASSES[c])) if bundled else CLASSES[c] for c in
-               df["Classes"]]
-    np.save(f"{dataset}/Y.npy", np.array(classes))
-    with open(f"{dataset}/process.json", "r+") as f:
+               df["Class"]]
+    with open(f"{dataset}/process.json", "r") as f:
         data = json.load(f)
         data["Bundled"] = bundled
+    with open(f"{dataset}/process.json", "w+") as f:
         json.dump(data, f)
+    np.save(f"{dataset}/Y.npy", np.array(classes))
     return True
 
 
@@ -132,7 +139,7 @@ def make_data(dataset: str, transforms: List[str],
     :return: Whether the operation was successful.
     """
     return _make_imageset(dataset, transforms) and \
-        _make_labelset(dataset, bundled)
+           _make_labelset(dataset, bundled)
 
 
 def get_process(dataset: str) -> Dict[str, Any]:

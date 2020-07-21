@@ -79,9 +79,9 @@ def import_images(images: List[str], labels: Optional[List[str]] = None,
     filenames = process_map(download_to_store if urls else copy_to_store,
                             images)
     df_old = pd.read_csv("data/log.csv", index_col="Index")
-    data = [[f, l, *[False for _ in CONVERSIONS.keys()]] for f, l in
-            zip(filenames, labels) if f is not None]
-    index_start = max(df_old.index) + 1
+    data = [[f, l, *[False for _ in CONVERSIONS.keys()]] for
+            f, l in zip(filenames, labels) if f is not None]
+    index_start = max(df_old.index, default=-1) + 1
     index = list(range(index_start, index_start + len(data)))
     df_new = pd.DataFrame(data, columns=df_old.columns, index=index)
     df = df_old.append(df_new)

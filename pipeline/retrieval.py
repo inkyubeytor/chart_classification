@@ -41,7 +41,7 @@ def _generate_file_name() -> str:
     Generates a "unique" filename/ID for an image.
     :return: The image name.
     """
-    return f"{time.time_ns()}{random.randint(100000, 999999)}"
+    return f"{int(time.time())}{random.randint(100000000, 999999999)}"
 
 
 def copy_to_store(fp: str) -> Optional[str]:

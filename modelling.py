@@ -18,7 +18,8 @@ def train_and_save(classifier: ClassifierMixin, dataset: str,
     :param bundled: Whether to bundle chart classes together.
     :return: None.
     """
-    make_data(dataset, transforms, bundled)
+    if not make_data(dataset, transforms, bundled):
+        raise FileNotFoundError
     images, labels = np.load(f"{dataset}/X.npy"), np.load(f"{dataset}/Y.npy")
     X_train, X_test, Y_train, Y_test = train_test_split(images, labels)
     classifier.fit(X_train, Y_train)
