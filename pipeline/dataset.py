@@ -14,12 +14,16 @@ from PIL import Image
 from .conversions import CONVERSIONS
 from .lib import process_map
 from .transforms import TRANSFORMS
-from .store import CLASSES
+from .store import CLASSES, DEFAULT_CLASS
 
 
-def new_dataset(filenames: List[str], conversions: List[str]) -> str:
+def new_dataset(filenames: List[str], conversions: List[str],
+                from_store=True) -> str:
     """
     Create a new dataset from a set of files and conversions.
+    :param filenames: The list of files to import.
+    :param conversions: The list of conversions to apply.
+    :param from_store: Whether the images are from the store.
     :return: The path to the dataset folder.
     """
     # Create new dataset
@@ -33,12 +37,16 @@ def new_dataset(filenames: List[str], conversions: List[str]) -> str:
             {"Conversions": conversions, "Transforms": [], "Bundled": None}, f)
 
     # Add images
-    df_store = pd.read_csv("data/log.csv", index_col="Index")
-    df = df_store[[f in filenames for f in df_store["File"]]]
-    conversions_left = [
-        (r, [c for c in conversions if not r[c]])
-        for _, r in df.iterrows()
-    ]
+    if from_store:
+        df_store = pd.read_csv("data/log.csv", index_col="Index")
+        df = df_store[[f in filenames for f in df_store["File"]]]
+        conversions_left = [
+            (r, [c for c in conversions if not r[c]])
+            for _, r in df.iterrows()
+        ]
+    else:
+        conversions_left = [({"File": f, "Class": DEFAULT_CLASS}, conversions)
+                            for f in filenames]
 
     def _copy_and_apply(file: str, conversions_to_apply: List[str]) -> str:
         """

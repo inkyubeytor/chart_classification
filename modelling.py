@@ -1,11 +1,15 @@
-from sklearn.model_selection import train_test_split
-from sklearn.base import ClassifierMixin
+import os
+from typing import List
+
+import joblib
 import numpy as np
 import pandas as pd
-from pipeline.dataset import make_data, get_process
-from typing import List
+from sklearn.base import ClassifierMixin
 from sklearn.metrics import classification_report, confusion_matrix
-import joblib
+from sklearn.model_selection import train_test_split
+
+from pipeline.dataset import get_process, make_data, new_dataset, delete_dataset
+from pipeline.store import CLASSES
 
 
 def train_and_save(classifier: ClassifierMixin, dataset: str,
@@ -55,3 +59,42 @@ def load_and_predict(model_dataset: str, test_dataset: str) -> None:
     pred = classifier.predict(images)
     print(classification_report(labels, pred))
     print(pd.DataFrame(confusion_matrix(labels, pred)))
+
+
+def export_model(model_dataset: str, dest: str) -> str:
+    """
+    Exports a model with associated process to a given location.
+    :param model_dataset: The path to the model to export.
+    :param dest: The destination directory.
+    :return: The path to the exported model.
+    """
+    try:
+        os.makedirs(dest)
+    except FileExistsError:
+        pass
+
+    classifier = joblib.load(f"{model_dataset}/model.joblib")
+    process = get_process(model_dataset)
+    output = f"{dest}/export_model.joblib"
+    joblib.dump((process, classifier), output)
+    return output
+
+
+def end_to_end_prediction(exported_model: str, image_paths: List[str]) \
+        -> List[str]:
+    """
+    Loads the exported model and process, converts the given images to a
+    dataset with the same process, classifies the images, deletes the dataset,
+    and returns the result.
+    :param exported_model: A model exported with `export_model`.
+    :param image_paths: Paths to image
+    :return:
+    """
+    process, classifier = joblib.load(exported_model)
+    dataset = new_dataset(image_paths, process["Conversions"], from_store=False)
+    if not make_data(dataset, process["Transforms"], process["Bundled"]):
+        raise FileNotFoundError
+    images = np.load(f"{dataset}/X.npy")
+    pred = classifier.predict(images)
+    delete_dataset(dataset)
+    return [list(CLASSES.keys())[list(CLASSES.values()).index(p)] for p in pred]
