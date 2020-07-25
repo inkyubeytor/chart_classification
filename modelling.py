@@ -97,4 +97,8 @@ def end_to_end_prediction(exported_model: str, image_paths: List[str]) \
     images = np.load(f"{dataset}/X.npy")
     pred = classifier.predict(images)
     delete_dataset(dataset)
-    return [list(CLASSES.keys())[list(CLASSES.values()).index(p)] for p in pred]
+    if process["Bundled"]:
+        return ["Graph" if p else "NotGraph" for p in pred]
+    else:
+        return [list(CLASSES.keys())[list(CLASSES.values()).index(p)]
+                for p in pred]
