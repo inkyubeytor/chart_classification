@@ -8,9 +8,8 @@ from sklearn.base import ClassifierMixin
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import train_test_split
 
-from pipeline.dataset import get_process, make_data, new_dataset, delete_dataset
+from pipeline.dataset import new_dataset, make_data, delete_dataset
 from pipeline.store import CLASSES
-
 
 def train_and_save(classifier: ClassifierMixin, dataset: str,
                    transforms: List[str], bundled: bool,
